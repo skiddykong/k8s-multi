@@ -1,0 +1,39 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  local:
+    push: false
+  artifacts:
+    - image: skiddykong/multi-client
+      context: client
+      docker:
+        dockerfile: Dockerfile.dev
+      sync: # inject these files (mode 2)when updated into the running pod. Other changes are mode 1.
+        '**/*.js': .
+        '**/*.css': .
+        '**/*.html': .
+    - image: skiddykong/multi-server
+      context: server
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        '**/*.js': .
+    - image: skiddykong/multi-worker
+      context: worker
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        '**/*.js': .
+deploy:
+  kubectl:
+    manifests:
+      - k8s/client-deployment.yml
+      - k8s/server-deployment.yml
+      - k8s/worker-deployment.yml
+#      - k8s/redis-deployment.yml
+#      - k8s/postgres-deployment.yml
+#      - k8s/client-cluster-ip-service.yml
+#      - k8s/postgres-cluster-ip-service.yml
+#      - k8s/redis-cluster-ip-service.yml
+#      - k8s/ingress-service.yaml
+#      - k8s/database-persistent-volume-claim.yml
